@@ -1,0 +1,92 @@
+﻿@page "/kvar"
+@page "/kvar/{id:int}"
+@inject IKvaroviService KvaroviService
+@inject NavigationManager NavigationManager
+
+@if (Id is null)
+{
+    <PageTitle>Kreiraj novi kvar</PageTitle>
+    <h3>Kreiraj novi kvar</h3>
+}
+else
+{
+    <PageTitle>Uredi @kvar.Ime</PageTitle>
+    <h3>Uredi @kvar.Ime</h3>
+}
+
+<EditForm Model="kvar" OnSubmit="HandleSubmit">
+    <div>
+        <label for="ime">Ime</label>
+        <InputText id="ime" @bind-Value="kvar.Ime" class="form-control" />
+    </div>
+    <div>
+        <label for="prioritet">Prioritet</label>
+        <InputText id="prioritet" @bind-Value="kvar.Prioritet" class="form-control" />
+    </div>
+    <div>
+        <label for="pocetak">Pocetak</label>
+        <InputText id="pocetak" @bind-Value="kvar.Pocetak" class="form-control" />
+    </div>
+    <div>
+        <label for="zavrsetak">Zavrsetak</label>
+        <InputText id="zavrsetak" @bind-Value="kvar.Zavrsetak" class="form-control" />
+    </div>
+    <div>
+        <label for="detaljniopis">Detaljni opis</label>
+        <InputText id="detaljniopis" @bind-Value="kvar.DetaljniOpis" class="form-control" />
+    </div>
+    <div>
+        <label for="status">Status</label>
+        <InputText id="status" @bind-Value="kvar.Status" class="form-control" />
+    </div>
+    <br />
+    <button type="submit" class="btn btn-primary">@btnText</button>
+    <button type="button" class="btn btn-danger"
+            @onclick="DeleteKvar">
+        Obriši kvar
+    </button>
+</EditForm>
+
+@code {
+    [Parameter]
+    public int? Id { get; set; }
+
+    string btnText = string.Empty;
+
+    KvalifikacijkiZadatak.Shared.Kvarovi kvar =
+        new KvalifikacijkiZadatak.Shared.Kvarovi { Ime = "Novi kvar" };
+
+    protected override void OnInitialized()
+    {
+        btnText = Id == null ? "Spremi novi kvar" : "Uredi kvar";
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Id is not null)
+        {
+            var result = await KvaroviService.GetKvarById((int)Id);
+            if (result is not null)
+                kvar = result;
+            else
+                NavigationManager.NavigateTo("/kvar");
+        }
+    }
+
+    async Task HandleSubmit()
+    {
+        if (Id is null)
+        {
+            await KvaroviService.CreateKvar(kvar);
+        }
+        else
+        {
+            await KvaroviService.UpdateKvar((int)Id, kvar);
+        }
+    }
+
+    async Task DeleteKvar()
+    {
+        await KvaroviService.DeleteKvar(kvar.Id);
+    }
+}

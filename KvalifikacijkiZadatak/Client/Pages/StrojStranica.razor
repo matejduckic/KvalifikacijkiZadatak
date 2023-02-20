@@ -1,0 +1,72 @@
+﻿@page "/stroj"
+@page "/stroj/{id:int}"
+@inject IStrojeviService StrojeviService
+@inject NavigationManager NavigationManager
+
+@if (Id is null)
+{
+    <PageTitle>Kreiraj novi stroj</PageTitle>
+    <h3>Kreiraj novi stroj</h3>
+}
+else
+{
+    <PageTitle>Uredi @stroj.Ime</PageTitle>
+    <h3>Uredi @stroj.Ime</h3>
+}
+
+<EditForm Model="stroj" OnSubmit="HandleSubmit">
+    <div>
+        <label for="ime">Ime</label>
+        <InputText id="ime" @bind-Value="stroj.Ime" class="form-control" />
+    </div>
+    <br />
+    <button type="submit" class="btn btn-primary">@btnText</button>
+    <button type="button" class="btn btn-danger"
+            @onclick="DeleteStroj">
+        Obriši stroj
+    </button>
+</EditForm>
+
+@code {
+    [Parameter]
+    public int? Id { get; set; }
+
+    string btnText = string.Empty;
+
+    KvalifikacijkiZadatak.Shared.Strojevi stroj =
+        new KvalifikacijkiZadatak.Shared.Strojevi { Ime = "Novi stroj" };
+
+    protected override void OnInitialized()
+    {
+        btnText = Id == null ? "Spremi novi stroj" : "Uredi stroj";
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Id is not null)
+        {
+            var result = await StrojeviService.GetStrojById((int)Id);
+            if (result is not null)
+                stroj = result;
+            else
+                NavigationManager.NavigateTo("/stroj");
+        }
+    }
+
+    async Task HandleSubmit()
+    {
+        if (Id is null)
+        {
+            await StrojeviService.CreateStroj(stroj);
+        }
+        else
+        {
+            await StrojeviService.UpdateStroj((int)Id, stroj);
+        }
+    }
+
+    async Task DeleteStroj()
+    {
+        await StrojeviService.DeleteStroj(stroj.Id);
+    }
+}

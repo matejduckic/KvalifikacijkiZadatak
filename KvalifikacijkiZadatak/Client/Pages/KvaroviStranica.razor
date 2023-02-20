@@ -1,0 +1,59 @@
+﻿@page "/kvarovi"
+@inject IKvaroviService KvaroviService
+@inject NavigationManager NavigationManager
+
+<h3>Kvarovi</h3>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Ime</th>
+            <th>Prioritet</th>
+            <th>Pocetak</th>
+            <th>Zavrsetak</th>
+            <th>Detaljni opis</th>
+            <th>Status</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var kvarovi in KvaroviService.Kvarovis)
+        {
+            <tr>
+                <td>@kvarovi.Ime</td>
+                <td>@kvarovi.Prioritet</td>
+                <td>@kvarovi.Pocetak</td>
+                <td>@kvarovi.Zavrsetak</td>
+                <td>@kvarovi.DetaljniOpis</td>
+                <td>@kvarovi.Status</td>
+                <td>
+                    <button class="btn btn-primary"
+                        @onclick="(() => ShowKvar(kvarovi.Id))">
+                        <i class="oi oi-pencil"></i>
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<button class="btn btn-primary"
+        @onclick="CreateNewKvar">
+    Kreiraj novi kvar
+</button>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await KvaroviService.GetKvarove();
+    }
+
+    void ShowKvar(int id)
+    {
+        NavigationManager.NavigateTo($"kvar/{id}");
+    }
+
+    void CreateNewKvar()
+    {
+        NavigationManager.NavigateTo("/kvar");
+    }
+}

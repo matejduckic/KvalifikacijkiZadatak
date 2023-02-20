@@ -1,0 +1,49 @@
+﻿@page "/strojevi"
+@inject IStrojeviService StrojeviService
+@inject NavigationManager NavigationManager
+
+<h3>Strojevi</h3>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Ime</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var strojevi in StrojeviService.Strojevis)
+        {
+            <tr>
+                <td>@strojevi.Ime</td>
+                <td>
+                    <button class="btn btn-primary"
+                        @onclick="(() => ShowStroj(strojevi.Id))">
+                        <i class="oi oi-pencil"></i>
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<button class="btn btn-primary"
+        @onclick="CreateNewStroj">
+    Kreiraj novi stroj
+</button>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await StrojeviService.GetStrojeve();
+    }
+
+    void ShowStroj(int id)
+    {
+        NavigationManager.NavigateTo($"stroj/{id}");
+    }
+
+    void CreateNewStroj()
+    {
+        NavigationManager.NavigateTo("/stroj");
+    }
+}
